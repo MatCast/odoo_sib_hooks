@@ -12,4 +12,4 @@ class ToPost(http.Controller):
     def insert_library_book(self, **kwargs):
         client = dh.Client(http.request.httprequest)
         client.update_lead()
-        return 'Hey There ###: {0}'.format('ciao')
+        return 'Lead Updated'
