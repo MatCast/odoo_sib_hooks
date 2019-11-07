@@ -114,8 +114,10 @@ class Client(object):
             if len(records) == 1:
                 to_write[MODEL_ID[key]] = records[0].id
             if not records:
-                rec = request.env[key].create({'name': self.db_map[key]})
-                to_write[MODEL_ID[key]] = rec.id
+                # no new state (provincia) should be created
+                if key != 'res.country.state':
+                    rec = request.env[key].create({'name': self.db_map[key]})
+                    to_write[MODEL_ID[key]] = rec.id
         return to_write
 
     def _handle_db(self):
