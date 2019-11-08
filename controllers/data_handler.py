@@ -78,10 +78,12 @@ class Client(object):
     def _parse_name(self):
         """Put together name and surname."""
         k = self.data.keys()
+        name = ''
+        surname = ''
         if 'cognome' in k:
             surname = self.data['cognome']
         if 'nome' in k:
-            name = surname = self.data['nome']
+            name = self.data['nome']
         if name or surname:
             self.txt_map['contact_name'] = (name + ' '
                                             + surname)
@@ -98,7 +100,6 @@ class Client(object):
 
     def _handle_txt(self):
         record = self._find_record()
-        # _logger.info('HERE LOGGING pizza1 {0}!!!!!!!!!!!!'.format(record.email_from))
         if record:
             map_copy = self.txt_map.copy()
             map_copy.pop('id')
