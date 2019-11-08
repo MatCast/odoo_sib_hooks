@@ -46,6 +46,8 @@ class Client(object):
         self.data = self._data_attributes()
         self.headers = response.headers
         self.record = None
+        self.user_agent = False
+        self._check_user_agent()
         self._map_data()
         self._parse_name()
 
@@ -130,6 +132,12 @@ class Client(object):
             record.write(to_write)
             self.record = record
 
+    def _check_user_agent(self):
+        if (self.headers.get('user-agent').lower()
+                == 'SendinBlue Webhook'.lower()):
+            self.user_agent = True
+
     def update_lead(self):
-        self._handle_txt()
-        self._handle_db()
+        if self.user_agent:
+            self._handle_txt()
+            self._handle_db()

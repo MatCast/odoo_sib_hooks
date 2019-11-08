@@ -11,9 +11,12 @@ class ToPost(http.Controller):
                 methods=['GET', 'POST'], csrf=False)
     def insert_library_book(self, **kwargs):
         client = dh.Client(http.request.httprequest)
-        client.update_lead()
-        result = 'No lead Updated'
-        if client.record:
-            result = 'Lead {0} Updated. ID: {1}'.format(client.record.name,
-                                                        client.record.id)
+        if client.user_agent:
+            client.update_lead()
+            result = 'No lead Updated'
+            if client.record:
+                result = 'Lead {0} Updated. ID: {1}'.format(client.record.name,
+                                                            client.record.id)
+        else:
+            result = 'Invalid User Agent'
         return result
