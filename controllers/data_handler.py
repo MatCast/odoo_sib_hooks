@@ -45,6 +45,7 @@ class Client(object):
         self.response = response
         self.data = self._data_attributes()
         self.headers = response.headers
+        self.record = None
         self._map_data()
         self._parse_name()
 
@@ -104,6 +105,7 @@ class Client(object):
             map_copy = self.txt_map.copy()
             map_copy.pop('id')
             record.write(map_copy)
+            self.record = record
 
     def _serach_db(self):
         # looks like {'state_id' : 23}
@@ -126,6 +128,7 @@ class Client(object):
         to_write = self._serach_db()
         if record:
             record.write(to_write)
+            self.record = record
 
     def update_lead(self):
         self._handle_txt()

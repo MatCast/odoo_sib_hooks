@@ -12,4 +12,8 @@ class ToPost(http.Controller):
     def insert_library_book(self, **kwargs):
         client = dh.Client(http.request.httprequest)
         client.update_lead()
-        return 'Lead Updated'
+        result = 'No lead Updated'
+        if client.record:
+            result = 'Lead {0} Updated. ID: {1}'.format(client.record.name,
+                                                        client.record.id)
+        return result
