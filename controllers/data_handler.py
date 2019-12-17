@@ -132,7 +132,7 @@ class Client(object):
     def _handle_txt(self):
         record = self._find_record()
         if record:
-            record.write(self.text_map)
+            record.write(self.txt_map)
             self.record = record
 
     def _serach_db(self):

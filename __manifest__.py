@@ -7,7 +7,8 @@
 
     'description': """
         Creates the webhooks addresses to retreive SendinBlue data.
-        Handels the incoming data updating the leads in the CRM
+        Handels the incoming data updating the leads in the CRM.
+        Uses Send In Blue API to connect get contact information.
     """,
 
     'author': "Matteo Castellani. Leon Gmbh",
@@ -17,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
     'category': 'Customer Relationship Management',
-    'version': '0.1',
+    'version': '0.2',
 
     # any module necessary for this one to work correctly
     'depends': ['base'],
