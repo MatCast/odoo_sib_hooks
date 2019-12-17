@@ -69,3 +69,6 @@ docs/_build/
 .cprofile_*
 node_modules
 package-lock.json
+
+# secret
+my_secret_key.py
