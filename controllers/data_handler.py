@@ -2,6 +2,7 @@
 import yaml
 import logging
 from odoo.http import request
+from . import sib_api_handler as sibh
 
 _logger = logging.getLogger(__name__)
 
@@ -13,7 +14,9 @@ SIB_MAP_TXT = {
     'indirizzo': 'street2',
     'cap': 'zip',
     'localita': 'city',
-    'odoo_id': 'id'
+    'odoo_id': 'id',
+    'email_count': 'x_email_count',
+    'score': 'x_score'
     }
 
 SIB_MAP_DB = {
@@ -43,6 +46,7 @@ EMAIL_COUNT
 class Client(object):
     def __init__(self, response):
         self.response = response
+        self.data_json = self._parse_data()
         self.data = self._data_attributes()
         self.headers = response.headers
         self.record = None
@@ -50,6 +54,9 @@ class Client(object):
         self._check_user_agent()
         self._map_data()
         self._parse_name()
+        self.email = self._get_email()
+        self.contact = self._get_sib_contact()
+        self.odoo_id = self._get_odoo_id()
 
     def _parse_data(self):
         try:
@@ -60,9 +67,30 @@ class Client(object):
         return data_json
 
     def _data_attributes(self):
-        data_json = self._parse_data()
-        attr = data_json['content'][0]['attributes']
+        attr = self.data_json['content'][0]['attributes']
         return dict((k.lower(), v) for k, v in attr.items())
+
+    def _get_email(self):
+        content = self.data_json.get('content')
+        if content:
+            return content[0].get('email')
+
+    def _get_sib_contact(self):
+        sibc = sibh.SibContact(self.email)
+        if sibc.error:
+            to_log = "Exception when calling ContactsApi->get_contact_info: {}"
+            _logger.info(to_log.format(sibc.error))
+        return sibc.contact
+
+    def _get_odoo_id(self):
+        id_odoo = None
+        if self.contact and 'ODOO_ID' in self.contact.attributes.keys():
+            id_odoo = self.contact.attributes.get('ODOO_ID')
+            self.txt_map.pop('id', None)
+        elif 'id' in self.txt_map.keys():
+            id_odoo = self.txt_map.get('id')
+            self.txt_map.pop('id', None)
+        return id_odoo
 
     def _map_data(self):
         # looks like {'partner_address_email' : 'example@email.com'}
@@ -93,8 +121,8 @@ class Client(object):
             self.txt_map['contact_name'] = self.txt_map['contact_name'].strip()
 
     def _find_record(self):
-        if 'id' in self.txt_map.keys():
-            lead_id = self.txt_map['id']
+        if self.odoo_id:
+            lead_id = self.odoo_id
             records = request.env['crm.lead'].sudo().search([('id',
                                                               '=',
                                                               lead_id)])
@@ -104,9 +132,7 @@ class Client(object):
     def _handle_txt(self):
         record = self._find_record()
         if record:
-            map_copy = self.txt_map.copy()
-            map_copy.pop('id')
-            record.write(map_copy)
+            record.write(self.text_map)
             self.record = record
 
     def _serach_db(self):
